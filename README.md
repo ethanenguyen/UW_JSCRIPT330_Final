@@ -9,10 +9,14 @@
 5. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc.
 
    a. UI for Q&A (chatbot)
+   
    b. Express server to handle the request
       1.  One route to upload the data
-      2.  One route to respond to user question
+         
+      3.  One route to respond to user question
+         
    c. A vector database.  Mongodb Cloud
+
    d. Local LLM server 
 
 ```mermaid
@@ -35,6 +39,9 @@ flowchart LR;
 9. A timeline for what project components you plan to complete, week by week, for the remainder of the class.
 
   Week 6: Simple UI , Sign up with Mongodb Cloud
+  
   Week 7: Stand up express server
+  
   Week 8: Conect everything
+  
   Week 9: Test and complete 
