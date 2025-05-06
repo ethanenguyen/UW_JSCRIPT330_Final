@@ -1,9 +1,21 @@
-1. A description of the scenario your project is operating in.
+1. A description of the scenario your project is operating in
+   Large Lanuage Models, although trained on large amounts of data, have limited domain-specific knowledge. This limitation makes them less effective for chatbots or similar apps that require specific data.
 
-2. A description of what problem your project seeks to solve.
+3. A description of what problem your project seeks to solve.
 
-3. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc.
+   Retrieval Augmented Generation (RAG) solves this concern by allowing LLMs access to external knowledge sources for a more accurate response generation. This means that with RAG, one can have an LLM that receives relevant information from specific knowledge base as context during the generation process to respond accurately to questions and inquiries from end users.
 
-4. Clear and direct call-outs of how you will meet the various project requirements.
+5. A description of what the technical components of your project will be, including: the routes, the data models, any external data sources you'll use, etc.
 
-5. A timeline for what project components you plan to complete, week by week, for the remainder of the class. 
+   
+
+7. Clear and direct call-outs of how you will meet the various project requirements.
+
+   
+
+9. A timeline for what project components you plan to complete, week by week, for the remainder of the class.
+
+  Week 6:
+  Week 7:
+  Week 8:
+  Week 9:
