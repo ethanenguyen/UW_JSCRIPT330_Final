@@ -23,11 +23,12 @@
 flowchart LR;
     User-->|Question|UI;
     UI-->|Question|Express;
-    Express-->MongoDB;
-    MongoDB-->|Relevant Documents|Prompt;
-    Express-->|Question|Prompt;
-    Prompt-->LLM(Olama Server);
-    LLM(Olama Server)-->|Answer|Express;
+    Documents-->|Embedding|MongoDB-Atlas;
+    MongoDB-Atlas-->|Relevant Documents|Prompt;
+   MongoDB-Atlas-->|Question|Prompt;
+    Express-->|Question|MongoDB-Atlas;
+    Prompt-->LLM-OpenAI-Server;
+    LLM-OpenAI-Server-->|Answer|Express;
     Express-->|Answer|UI;
 
 ```
@@ -45,3 +46,21 @@ flowchart LR;
   Week 8: Conect everything
   
   Week 9: Test and complete 
+
+## UPDATE (5-22-2025):
+
+### Completed: 
+- Registration with Mongodb Cloud and spining up Atlas db and indexing 
+- UI with input and ouptut from LLM
+- Express server:
+   - endpoint for embedding documents and saving to Atlas db
+   - endpoint for taking user's query, searching Atlas db, connecting to a LLM and generating response
+
+### In-progress:
+- Integration testing
+- Functional test
+- Unittest
+
+
+
+
