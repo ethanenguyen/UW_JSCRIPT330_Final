@@ -18,7 +18,8 @@ const clientOptions = {
 
 class MyEmbeddingPipeline {
   static task = 'feature-extraction';
-  static model = 'Xenova/all-MiniLM-L6-v2';
+  // static model = 'Xenova/all-MiniLM-L6-v2';
+  static model = 'Xenova/bge-m3';
   static instance = null;
 
   static async getInstance(progress_callback = null) {
@@ -224,7 +225,7 @@ app.post("/chat", async (req, res) => {
         const cleanedText = sentence.replace(/['"]/g, '');
 
         // mongoContext = `You are a helpful chatbot.  Your job is to answer question based on the relevant context, always tell the user the name of the file and the page number as part of your answer: ${cleanedText} from ${pdfFileName}, page ${pageNumber}.`;
-        mongoContext = `You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know.  Always tell the user the name of the file and the page number as part of your answer
+        mongoContext = `You are an assistant for question-answering tasks. Use the following retrieved context to answer the question. If you don't know the answer, just say that you don't know.  Always cite the name of the source and the page number as part of your answer
         Question: ${userMessage}
         Context: ${cleanedText} from ${pdfFileName}, page ${pageNumber}
         Answer:`

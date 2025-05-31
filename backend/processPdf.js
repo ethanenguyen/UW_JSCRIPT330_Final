@@ -28,7 +28,7 @@ async function readPDFsAndEmbed(directoryPath) {
 
     const files = fs
     .readdirSync(directoryPath)
-    .filter((file) => file.endsWith(".json") || file.endsWith(".pdfx") || file.endsWith(".txtx"));
+    .filter((file) => file.endsWith(".json") || file.endsWith(".pdf") || file.endsWith(".txt"));
 
     // Initialize the RecursiveCharacterTextSplitter
     let textSplitter = new RecursiveCharacterTextSplitter({
@@ -36,6 +36,12 @@ async function readPDFsAndEmbed(directoryPath) {
       chunkOverlap: 128, // Overlap between chunks
     });
     
+    const specialTextSplitter = new RecursiveCharacterTextSplitter({
+      separator: " | \n",
+      chunkSize: 1024,
+      chunkOverlap: 128,
+    });
+
     // Process the pdf files
     for (const file of files) {
       console.log(`Processing file: ${file}`);
@@ -45,33 +51,34 @@ async function readPDFsAndEmbed(directoryPath) {
       let chunks = "";
       if (file.endsWith(".json")) {
         const data = JSON.parse(dataBuffer);
-        textData = Object.values(data).map(entry => 
-          `In ${entry.Year}, ${entry.Artist} from ${entry.Country} entered this song ${entry.Song} in ${entry.Language} to Eurovision held in ${entry['Host City']}. The lyrics of the song is following ${entry['Lyrics translation']}. `
-        ).join('\n\n');
+        // textData = Object.values(data).map(entry => 
+        //   `Singer ${entry.Artist} from ${entry.Country} entered the song ${entry.Song} in ${entry.Language} to ${entry.Year} Eurovision held in ${entry['Host City']}. The lyrics of the song is following ${entry['Lyrics translation']}. `
+        // ).join(' | \n');
+        textData = Object.values(data).map(entry => {
+        // Check if lyrics translation is English; if so, use "Lyrics translation" or fallback to "Lyrics"
+        const lyrics = entry["Lyrics translation"] === "English" ? entry["Lyrics"] : entry["Lyrics translation"];
+        return `Singer ${entry.Artist} from ${entry.Country} entered the song "${entry.Song}" in ${entry.Language} for the ${entry.Year} Eurovision held in ${entry["Host City"]}. The lyrics of the song are ${lyrics}`;
+        })
+        .join(' | \n');
 
-        // console.log(textData)
-        // sentences = textData.split(". ");
-        // textSplitter = new CharacterTextSplitter({
-        //   chunkSize: 1024, // Maximum size of each chunk
-        //   chunkOverlap: 128, // Overlap between chunks
-        // });
-        
+        chunks = await specialTextSplitter.createDocuments([textData]);
       }
       else if (file.endsWith(".pdf"))  {
         // Assuming each sentences is separated by ". "
         const content = await pdfParse(dataBuffer);
         textData = content.text;
         // sentences = textData.text.split(". ");
+        // Split the text into chunks
+        chunks = await textSplitter.createDocuments([textData]);
       }
       else {
         textData = fs.readFileSync(filePath, 'utf8'); 
         // sentences = dataBuffer.split('. ').map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
-        // console.log('File contents:\n', textData);
-
+        // Split the text into chunks
+        chunks = await textSplitter.createDocuments([textData]);
       }
       
-      // Split the text into chunks
-      chunks = await textSplitter.createDocuments([textData]);
+
       // Initialize pageNumber to 1 at the start.
       let pageNumber = 1;
 
