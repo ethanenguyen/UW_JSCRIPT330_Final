@@ -1,9 +1,7 @@
 const request = require("supertest");
-// const cheerio = require('cheerio');
+const cheerio = require('cheerio');
 
 const server = require("./server");
-// const testUtils = require('../test-utils');
-// const Weather = require('../models/weather');
 
 describe("/server", () => {
 
@@ -20,7 +18,7 @@ describe("/server", () => {
 
   describe("POST /embedding", () => {
     it("should return embeddings for valid text", async () => {
-      const mockEmbeddings = [0.1, 0.2, 0.3]; // Sample embeddings
+      const mockEmbeddings = [0.4, 0.5, 0.8]; // Sample embeddings
       getEmbeddings.mockResolvedValue(mockEmbeddings);
   
       const response = await request(app).post("/embedding").send({ text: "Hello World!" });
@@ -39,30 +37,51 @@ describe("/server", () => {
     });
   });
 
-  // describe("GET /embedding", () => {
-  //   it("should return weather for provided location", async () => {
-  //     const res = await request(server).get("/weather/location?name=Home");
-  //     expect(res.statusCode).toEqual(200);
-  //     const $ = cheerio.load(res.text);
+describe("POST /chat", () => {
+  let mockDb, mockCollection;
 
-  //   });
+  beforeAll(() => {
+    mockDb = { collection: jest.fn(() => mockCollection) };
+    mockCollection = {
+      aggregate: jest.fn(async () => [
+        {
+          pdfFileName: "example.pdf",
+          sentence: "This is relevant context.",
+          pageNumber: 5,
+        },
+      ]),
+    };
+    client.db = jest.fn(() => mockDb);
+  });
 
-  //   it("should error page if no matching place", async () => {
-  //     const res = await request(server).get("/weather/location?name=Other");
-  //     expect(res.statusCode).toEqual(404);
-  //     const $ = cheerio.load(res.text);
+  test("should return a response when RAG is enabled", async () => {
+    const response = await request(app)
+      .post("/chat")
+      .send({ message: "What is AI?", rag: true });
 
-  //     const text = $.text();
-  //     expect(text).toContain('The weather for Other is not available');
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain("example.pdf, page 5");
+  });
 
-  //     const link = $('a');
-  //     expect(link.prop('href')).toEqual("/weather");
-  //     expect(link.text()).toContain("Go Back");
-  //   });
+  test("should return a response when RAG is disabled", async () => {
+    const response = await request(app)
+      .post("/chat")
+      .send({ message: "What is AI?", rag: false });
 
-  //   it("should redirect back to weather landing if no name provided", async () => {
-  //     const res = await request(server).get("/weather/location?name=");
-  //     expect(res.statusCode).toEqual(302);
-  //     expect(res.headers.location).toEqual("/weather");
-  //   });
+    expect(response.statusCode).toBe(200);
+    expect(response.text).toContain("I don't know");
+  });
+
+  test("should handle errors gracefully", async () => {
+    mockCollection.aggregate.mockRejectedValueOnce(new Error("DB Error"));
+
+    const response = await request(app)
+      .post("/chat")
+      .send({ message: "Test error", rag: true });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.body.message).toBe("Error processing your message");
+  });
+});
+
   });

@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const server = express();
 const { MongoClient } = require("mongodb"); // Import MongoDB client
 // const { PredictionServiceClient } = aiplatform.v1;
 // const { helpers } = aiplatform;
@@ -147,15 +147,15 @@ async function getEmbeddings(text) {
   // return extractFloatsFromJson(predictions);
 }
 
-app.use(express.json());
+server.use(express.json());
 const cors = require("cors");
-app.use(cors());
+server.use(cors());
 
-app.get("/", (req, res) => {
+server.get("/", (req, res) => {
   res.send("RAG Chatbot Backend is running!").sendStatus(200);
 });
 
-app.post("/embedding", async (req, res) => {
+server.post("/embedding", async (req, res) => {
   const text = req.body.text;
 
   try {
@@ -173,7 +173,7 @@ app.post("/embedding", async (req, res) => {
 });
 
 // Endpoint for handling chat messages, dynamically responding based on RAG status.
-app.post("/chat", async (req, res) => {
+server.post("/chat", async (req, res) => {
   const userMessage = req.body.message; // Extract user message from request body.
   const rag = req.body.rag; // Extract RAG status.
   let prompt; // Initialize prompt variable for later use.
@@ -312,7 +312,7 @@ async function connectToMongoDB() {
 
 // Start server and connect to MongoDB
 connectToMongoDB().then(() => {
-  app.listen(config.port, () => {
+  server.listen(config.port, () => {
     console.log(`Server is running on port ${config.port}`);
   });
 });
