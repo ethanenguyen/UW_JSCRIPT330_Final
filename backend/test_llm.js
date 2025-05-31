@@ -1,18 +1,25 @@
 import { pipeline, TextStreamer } from "@huggingface/transformers";
 
+// Allocate a pipeline for sentiment-analysis
+const pipe = await pipeline('sentiment-analysis');
+
+const out = await pipe('I love transformers!');
+console.log(out)
+
 // Create a text generation pipeline
 const generator = await pipeline(
   "text-generation",
-//   "onnx-community/Qwen2.5-Coder-0.5B-Instruct",
-  "onnx-community/TinyLlama-1.1B-Chat-v1.0-ONNX",
+  // "onnx-community/Qwen2.5-Coder-0.5B-Instruct",
+  // "onnx-community/TinyLlama-1.1B-Chat-v1.0-ONNX",
+  "Xenova/TinyLlama-1.1B-Chat-v1.0",
 // "onnx-community/Llama-3.2-3B-Instruct",
   { dtype: "q4" },
 );
 
 // Define the list of messages
 const messages = [
-  { role: "system", content: "You are a helpful assistant." },
-  { role: "user", content:  "Write a travel plan for someone who visit Venice in September." },
+  { role: "system", content: "You are a helpful travel assistant." },
+  { role: "user", content:  "Write a travel plan for someone who visit Santorini, Greek in September." },
 ];
 
 // Create text streamer

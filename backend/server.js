@@ -1,9 +1,8 @@
 const express = require("express");
 const app = express();
 const { MongoClient } = require("mongodb"); // Import MongoDB client
-const aiplatform = require("@google-cloud/aiplatform");
-const { PredictionServiceClient } = aiplatform.v1;
-const { helpers } = aiplatform;
+// const { PredictionServiceClient } = aiplatform.v1;
+// const { helpers } = aiplatform;
 const config = require("./config.json");
 
 // MongoDB connection string - adjust in the config.json file
@@ -12,9 +11,6 @@ const client = new MongoClient(mongoUri);
 const dbName = config.mongoDB.dbName;
 const collectionName = config.mongoDB.collectionName;
 
-const clientOptions = {
-  apiEndpoint: config.googleCloud.apiEndpoint,
-};
 
 class MyEmbeddingPipeline {
   static task = 'feature-extraction';
@@ -66,7 +62,7 @@ MyChatPipeline.getInstance();
 
 MyEmbeddingPipeline.getInstance();
 
-const predictionServiceClient = new PredictionServiceClient(clientOptions);
+// const predictionServiceClient = new PredictionServiceClient(clientOptions);
 
 let history = [];
 let lastRag = false;
@@ -92,7 +88,7 @@ function extractFloatsFromJson(jsonData) {
   return floats; // Return collected floats.
 }
 
-// Asynchronously fetches embeddings for given text using a Google Cloud model.
+// Asynchronously fetches embeddings for given text using a local model.
 async function getEmbeddings(text) {
 
   let response;
@@ -156,7 +152,7 @@ const cors = require("cors");
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("RAG Chatbot Backend is running!");
+  res.send("RAG Chatbot Backend is running!").sendStatus(200);
 });
 
 app.post("/embedding", async (req, res) => {
@@ -167,6 +163,7 @@ app.post("/embedding", async (req, res) => {
     const embeddings = await getEmbeddings(text);
 
     res.json({ embeddings: embeddings }); // Return embeddings
+
   } catch (error) {
     console.error("Error getting embeddings:", error);
 
