@@ -5,7 +5,6 @@ import {
   Paper,
   List,
   ListItem,
-  ListItemText,
   TextField,
   Button,
   AppBar,
@@ -21,7 +20,7 @@ import config from "./config";
 
 function App() {
   const [messages, setMessages] = useState([
-    { text: "Welcome, how can I help?", sender: "Bot" },
+    { text: "Hello, how can I help?", sender: "Bot" },
   ]);
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false); // State to track if waiting for response
@@ -59,13 +58,6 @@ function App() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
-        // Update UI to show user's message
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { text: userMessage, sender: "user" },
-        ]);
-
-
         // while (true) {
         //   const { done, value } = await reader.read();
         //   if (done) break;
@@ -101,10 +93,6 @@ function App() {
 
         setIsWaitingForResponse(false); // Hide waiting indicator
 
-      // const data = await response.json(); // Parse JSON response.
-
-      // setIsWaitingForResponse(false); // Reset waiting indicator.
-      // return data.message; // Return server's message from response.
     } catch (error) {
       console.error("Error sending message:", error); // Log error.
       setIsWaitingForResponse(false); // Reset waiting indicator on error.
@@ -121,7 +109,7 @@ function App() {
       ...messages,
       { text: userMessage, sender: "user" },
     ]);
-    setInput(""); // Clear the input field.
+    setInput(""); 
 
     // Await response from server after sending user message.
     const botResponse = await sendMessageToServer(userMessage);
@@ -144,7 +132,7 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" style={{ flexGrow: 1 }}>
-            Chatbot using RAG
+            Personal Chatbot
           </Typography>
           <Typography variant="h6" sx={{ marginRight: "10px" }}>
             RAG:
@@ -182,11 +170,11 @@ function App() {
               >
                 <Box
                   sx={{
-                    maxWidth: "80%",
+                    maxWidth: "120%",
                     padding: "10px",
                     borderRadius: "20px",
                     backgroundColor:
-                      message.sender === "user" ? "blue" : "grey",
+                      message.sender === "user" ? "grey" : "#0086b3",
                     color: "#fff",
                     marginBottom: "10px",
                   }}

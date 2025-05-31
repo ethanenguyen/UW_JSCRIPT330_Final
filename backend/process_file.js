@@ -4,7 +4,7 @@ const axios = require("axios");
 const { MongoClient } = require("mongodb");
 const config = require("./config.json");
 
-const directoryPath = "./pdfs"; // Directory where your PDF files are stored
+const directoryPath = "./data"; // Directory where your PDF files are stored
 const embeddingEndpoint = `http://localhost:${config.port}/embedding`;
 
 const { RecursiveCharacterTextSplitter } = require("langchain/text_splitter");
@@ -19,7 +19,7 @@ const collectionName = config.mongoDB.collectionName;
 // output.data will be a Float32Array containing the embeddings
 // 
 // Read the PDF files from the pdfs directory
-async function readPDFsAndEmbed(directoryPath) {
+async function readFilesAndEmbed(directoryPath) {
   try {
     await client.connect();
     console.log("Connected successfully to MongoDB server");
@@ -112,7 +112,7 @@ async function readPDFsAndEmbed(directoryPath) {
       }
     }
 
-    console.log("All PDFs processed and embeddings stored.");
+    console.log("All file processed and embeddings stored.");
   } catch (error) {
     console.error("Error:", error);
   } finally {
@@ -120,4 +120,4 @@ async function readPDFsAndEmbed(directoryPath) {
   }
 }
 
-readPDFsAndEmbed(directoryPath);
+readFilesAndEmbed(directoryPath);

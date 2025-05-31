@@ -1,5 +1,5 @@
 const express = require("express");
-const server = express();
+const app = express();
 const { MongoClient } = require("mongodb"); // Import MongoDB client
 // const { PredictionServiceClient } = aiplatform.v1;
 // const { helpers } = aiplatform;
@@ -36,7 +36,8 @@ class MyEmbeddingPipeline {
 class MyChatPipeline {
   static task = 'text-generation';
   // static model = 'onnx-community/Qwen2.5-Coder-0.5B-Instruct';
-  static model = 'onnx-community/TinyLlama-1.1B-Chat-v1.0-ONNX';
+  // static model = 'onnx-community/TinyLlama-1.1B-Chat-v1.0-ONNX';
+  static model =   "Xenova/TinyLlama-1.1B-Chat-v1.0";
   static instance = null;
 
   static async getInstance(progress_callback = null) {
@@ -147,15 +148,15 @@ async function getEmbeddings(text) {
   // return extractFloatsFromJson(predictions);
 }
 
-server.use(express.json());
+app.use(express.json());
 const cors = require("cors");
-server.use(cors());
+app.use(cors());
 
-server.get("/", (req, res) => {
-  res.send("RAG Chatbot Backend is running!").sendStatus(200);
+app.get("/", (req, res) => {
+  res.status(200).send("RAG Chatbot Backend is running!");
 });
 
-server.post("/embedding", async (req, res) => {
+app.post("/embedding", async (req, res) => {
   const text = req.body.text;
 
   try {
@@ -173,7 +174,7 @@ server.post("/embedding", async (req, res) => {
 });
 
 // Endpoint for handling chat messages, dynamically responding based on RAG status.
-server.post("/chat", async (req, res) => {
+app.post("/chat", async (req, res) => {
   const userMessage = req.body.message; // Extract user message from request body.
   const rag = req.body.rag; // Extract RAG status.
   let prompt; // Initialize prompt variable for later use.
@@ -210,7 +211,7 @@ server.post("/chat", async (req, res) => {
             limit: 1,
           },
         },
-      ];
+      ];    
       const aggregationResponse = await collection
         .aggregate(pipeline)
         .toArray();
@@ -270,7 +271,7 @@ server.post("/chat", async (req, res) => {
 
     const streamer = new TextStreamer(generator.tokenizer, {
       skip_prompt: true,
-      // Optionally, do something with the text (e.g., write to a textbox)
+
       callback_function: (chunk) => {
         res.write(chunk); // Ensure proper streaming with newline
       },
@@ -289,7 +290,7 @@ server.post("/chat", async (req, res) => {
       content: botTextResponse,
     });
 
-    // res.json({ message: botTextResponse });
+
     res.end(); // Signal completion of streaming
 
   } catch (error) {
@@ -312,7 +313,7 @@ async function connectToMongoDB() {
 
 // Start server and connect to MongoDB
 connectToMongoDB().then(() => {
-  server.listen(config.port, () => {
+  app.listen(config.port, () => {
     console.log(`Server is running on port ${config.port}`);
   });
 });
