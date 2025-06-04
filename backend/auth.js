@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
         roles: user.roles, // add roles
     }, process.env.JWT_SECRET, {expiresIn: '30m'});
 
-    return res.send({token}).sendStatus(200);
+    return res.status(200).send({token});
 });
 
 
@@ -122,7 +122,7 @@ router.post('/login', async (req, res) => {
 
     const user = await UserDAO.login(email, password);
     if (!user) {
-        return res.sendStatus(401).send("User not exist  or bad password");
+        return res.status(401).send("User not exist or bad password");
     }
 
     // const twoFactorAuthCode = '40400';

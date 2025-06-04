@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useRef, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -17,10 +18,19 @@ import {
   Box,
 } from "@mui/material";
 import config from "./config";
+import LandingPage from "./LandingPage"; // Import LandingPage component
+import Signup from "./SignUp";
+import Login from "./Login";
 
-function App() {
+function Chatbot() {
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const username = params.get("user") 
+  const token = params.get("token") || localStorage.getItem("authToken");
+
   const [messages, setMessages] = useState([
-    { text: "Hello, how can I help?", sender: "Bot" },
+    { text: `Hello ${username.toUpperCase()}, how can I help?`, sender: "Bot" },
   ]);
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false); // State to track if waiting for response
@@ -32,6 +42,7 @@ function App() {
     scrollToBottom();
   }, [messages]); // Triggered every time the messages array changes
 
+
   // Scrolls to the bottom of the messages container smoothly.
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -41,6 +52,11 @@ function App() {
   const sendMessageToServer = async (userMessage) => {
     setIsWaitingForResponse(true); // Indicate waiting for server response.
 
+      // Validate token before displaying chatbot
+  if (!token) {
+    return <h2>Access Denied: Please log in</h2>;
+  }
+
     try {
       
       // Send POST request to server with userMessage and RAG status.
@@ -48,7 +64,9 @@ function App() {
         `http://localhost:${config.backend_port}/chat`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json",
+             "Authorization": `Bearer ${token}`
+           },
           body: JSON.stringify({ message: userMessage, rag: isRAGEnabled }),
         }
       );
@@ -209,5 +227,20 @@ function App() {
     </div>
   );
 }
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/chatbot" element={<Chatbot />} />
+
+      </Routes>
+    </Router>
+  );
+};
+
 
 export default App;

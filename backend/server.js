@@ -1,16 +1,18 @@
 const express = require("express");
+const authRoutes = require("./auth"); // Import auth.js
+const jwt = require('jsonwebtoken');
 const app = express();
 const { MongoClient } = require("mongodb"); // Import MongoDB client
 // const { PredictionServiceClient } = aiplatform.v1;
 // const { helpers } = aiplatform;
 const config = require("./config.json");
-
+// const mongoose = require("mongoose");
 // MongoDB connection string - adjust in the config.json file
 const mongoUri = config.mongoDB.mongoUri;
 const client = new MongoClient(mongoUri);
 const dbName = config.mongoDB.dbName;
 const collectionName = config.mongoDB.collectionName;
-
+const mongoose = require("mongoose");
 
 class MyEmbeddingPipeline {
   static task = 'feature-extraction';
@@ -148,6 +150,21 @@ async function getEmbeddings(text) {
   // return extractFloatsFromJson(predictions);
 }
 
+const authMiddleware = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.sendStatus(401);
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const user = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = user;
+        next();
+    } catch (error) {
+        return res.sendStatus(401);
+    }
+}
+
 app.use(express.json());
 const cors = require("cors");
 app.use(cors());
@@ -155,6 +172,8 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.status(200).send("RAG Chatbot Backend is running!");
 });
+
+app.use("/auth", authRoutes); // Use authentication routes
 
 app.post("/embedding", async (req, res) => {
   const text = req.body.text;
@@ -174,7 +193,7 @@ app.post("/embedding", async (req, res) => {
 });
 
 // Endpoint for handling chat messages, dynamically responding based on RAG status.
-app.post("/chat", async (req, res) => {
+app.post("/chat", authMiddleware, async (req, res) => {
   const userMessage = req.body.message; // Extract user message from request body.
   const rag = req.body.rag; // Extract RAG status.
   let prompt; // Initialize prompt variable for later use.
@@ -304,7 +323,7 @@ async function connectToMongoDB() {
   dbClient = new MongoClient(mongoUri);
   try {
     await dbClient.connect();
-    console.log("Connected successfully to MongoDB");
+    console.log("Connected successfully to MongoDB Atlas");
   } catch (error) {
     console.error("Could not connect to MongoDB:", error);
     process.exit(1); // Exit if the database connection cannot be established
@@ -317,6 +336,14 @@ connectToMongoDB().then(() => {
     console.log(`Server is running on port ${config.port}`);
   });
 });
+
+
+mongoose
+  .connect("mongodb://127.0.0.1/llm-rag", {})
+  .then(() => {console.log('Connect to local MongoDb')})
+  .catch((e) => {
+    console.error(`Failed to connect to Local MongoDb server:`, e);
+  });
 
 // Gracefully handle shutdown and close MongoDB connection
 process.on("SIGINT", async () => {

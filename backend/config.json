@@ -1,0 +1,8 @@
+{
+    "mongoDB": {
+        "mongoUri": "mongodb+srv://username:xxxxadf@rag.xasdfdss.mongodb.net/?retryWrites=true&w=majority&appName=xasdfd",
+        "dbName": "uw-rag", 
+        "collectionName": "data" 
+    },
+    "port": 5050
+}
